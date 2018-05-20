@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"flag"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
 	clientset "github.com/a8uhnf/test-crd/pkg/client/clientset/versioned"
-	informers "k8s.io/sample-controller/pkg/client/informers/externalversions"
+	informers "github.com/a8uhnf/test-crd/pkg/client/informers/externalversions"
 	"k8s.io/sample-controller/pkg/signals"
 )
 
@@ -44,7 +45,7 @@ func main() {
 
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)
 	exampleInformerFactory := informers.NewSharedInformerFactory(exampleClient, time.Second*30)
-
+	fmt.Println("-------------")
 	controller := NewController(kubeClient, exampleClient, kubeInformerFactory, exampleInformerFactory)
 
 	go kubeInformerFactory.Start(stopCh)
