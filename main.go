@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"flag"
+	"fmt"
 	"time"
 
 	"github.com/golang/glog"
@@ -10,8 +10,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 
+	"github.com/a8uhnf/test-crd/controller"
 	clientset "github.com/a8uhnf/test-crd/pkg/client/clientset/versioned"
 	informers "github.com/a8uhnf/test-crd/pkg/client/informers/externalversions"
 	"k8s.io/sample-controller/pkg/signals"
@@ -46,7 +47,7 @@ func main() {
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)
 	exampleInformerFactory := informers.NewSharedInformerFactory(exampleClient, time.Second*30)
 	fmt.Println("-------------")
-	controller := NewController(kubeClient, exampleClient, kubeInformerFactory, exampleInformerFactory)
+	controller := controller.NewController(kubeClient, exampleClient, kubeInformerFactory, exampleInformerFactory)
 
 	go kubeInformerFactory.Start(stopCh)
 	go exampleInformerFactory.Start(stopCh)
@@ -57,6 +58,6 @@ func main() {
 }
 
 func init() {
-	flag.StringVar(&kubeconfig, "kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
+	flag.StringVar(&kubeconfig, "kubeconfig", "~/.kube/config", "Path to a kubeconfig. Only required if out-of-cluster.")
 	flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
 }
