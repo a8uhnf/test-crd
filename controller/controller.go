@@ -18,6 +18,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/golang/glog"
@@ -85,18 +86,12 @@ type Controller struct {
 	recorder record.EventRecorder
 }
 
-func HelloWorld() {
-	fmt.Println("9898989898989898")
-}
-
 // NewController returns a new sample controller
 func NewController(
 	kubeclientset kubernetes.Interface,
 	sampleclientset clientset.Interface,
 	kubeInformerFactory kubeinformers.SharedInformerFactory,
 	sampleInformerFactory informers.SharedInformerFactory) *Controller {
-
-	fmt.Println("Hello World!!!!!")
 	// obtain references to shared index informers for the Deployment and Foo
 	// types.
 	deploymentInformer := kubeInformerFactory.Extensions().V1beta1().Deployments()
@@ -129,6 +124,9 @@ func NewController(
 		AddFunc: controller.enqueueFoo,
 		UpdateFunc: func(old, new interface{}) {
 			controller.enqueueFoo(new)
+		},
+		DeleteFunc: func(obj interface{}) {
+			fmt.Println("Hello World!!!", obj)
 		},
 	})
 	// Set up an event handler for when Deployment resources change. This
@@ -398,6 +396,7 @@ func (c *Controller) handleObject(obj interface{}) {
 // the appropriate OwnerReferences on the resource so handleObject can discover
 // the Foo resource that 'owns' it.
 func newDeployment(foo *samplev1alpha1.Foo) *extensionv1beta1.Deployment {
+	log.Println("Creating deployment...")
 	labels := map[string]string{
 		"app":        "nginx",
 		"controller": foo.Name,

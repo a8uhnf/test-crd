@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"time"
 
 	"github.com/golang/glog"
@@ -46,7 +45,6 @@ func main() {
 
 	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)
 	exampleInformerFactory := informers.NewSharedInformerFactory(exampleClient, time.Second*30)
-	fmt.Println("-------------")
 	controller := controller.NewController(kubeClient, exampleClient, kubeInformerFactory, exampleInformerFactory)
 
 	go kubeInformerFactory.Start(stopCh)

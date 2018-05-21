@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sidecar-inject
+  namespace: default
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sidecar-inject
+  labels:
+    app: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+      - name: sidecar-inject
+        image: a8uhnf/test-crd:1.0
+        imagePullPolicy: Always
+      serviceAccountName: sidecar-inject
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sidecar-inject
+  labels:
+    app: test
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["list", "watch"]
+- apiGroups: [""]
+  resources:
+  - secrets
+  verbs: ["get", "create", "patch", "delete"]
+- apiGroups:
+    - ""
+  resources:
+    - namespaces
+  verbs: ["get"]
+- apiGroups: ["samplecontroller.k8s.io"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sidecar-inject
+  labels:
+    app: test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sidecar-inject
+subjects:
+- kind: ServiceAccount
+  name: sidecar-inject
+  namespace: default
